@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Path
+from typing import Optional
 
 app = FastAPI()
 
@@ -36,3 +37,27 @@ def get_item(item_id : int): # Type Hint, the name of the function parameter her
 @app.get("/get-item/{item_id}")
 def get_item(item_id : int = Path(description="This is the ID of the product that you want to view", gt=0)): # description parameter is used to provide a description of the path parameter that is being passed to the API, gt here means greater than, similarly you can also use lt which means less than 
     return products[item_id]
+
+# Endpoint with a query parameter
+# @app.get("/get-by-name")
+# def get_item_name(name: Optional[str] = None):
+#     for product in products:
+#         if products[product]['name'] == name:
+#             return products[product]
+#     return {"Data" : "Not Found"}
+
+# Endpoint with multiple query parameters
+@app.get("/get-by-name")
+def get_item_name(test : int, name: Optional[str] = None):
+    for product in products:
+        if products[product]['name'] == name:
+            return products[product]
+    return {"Data" : "Not Found"}
+
+# Combining Path & Query Parameters
+@app.get("/get-by-name/{item_id}")
+def get_item_name(item_id : int, test : int, name: Optional[str] = None):
+    for product in products:
+        if products[product]['name'] == name:
+            return products[product]
+    return {"Data" : "Not Found"}
