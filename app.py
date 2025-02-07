@@ -1,20 +1,29 @@
 from fastapi import FastAPI, Path
 from typing import Optional
+from pydantic import BaseModel
 
 app = FastAPI()
 
-products = {
-    1 : {"name" : "Tea",
-        "price" : 50,
-        "brand" : "Society",
-        "available" : "Yes"
-    },
-    2: {"name" : "Chips",
-        "price" : 30,
-        "brand" : "Lays",
-        "available" : "No"
-    }
-}
+class Item(BaseModel):
+    name: str
+    price: float
+    brand: Optional[str] = None
+    available: str
+
+# products = {
+#     1 : {"name" : "Tea",
+#         "price" : 50,
+#         "brand" : "Society",
+#         "available" : "Yes"
+#     },
+#     2: {"name" : "Chips",
+#         "price" : 30,
+#         "brand" : "Lays",
+#         "available" : "No"
+#     }
+# }
+
+products = {}
 
 # print(products[2]['price'])
 
@@ -50,7 +59,7 @@ def get_item(item_id : int = Path(description="This is the ID of the product tha
 @app.get("/get-by-name")
 def get_item_name(test : int, name: Optional[str] = None):
     for product in products:
-        if products[product]['name'] == name:
+        if products[product].name == name: # products[product]['name'] == name: this was used when we didn't have Item
             return products[product]
     return {"Data" : "Not Found"}
 
@@ -58,6 +67,20 @@ def get_item_name(test : int, name: Optional[str] = None):
 @app.get("/get-by-name/{item_id}")
 def get_item_name(item_id : int, test : int, name: Optional[str] = None):
     for product in products:
-        if products[product]['name'] == name:
+        if products[product].name == name: # products[product]['name'] == name: this was used when we didn't have Item
             return products[product]
     return {"Data" : "Not Found"}
+
+# @app.post("/create-item/{item_id}") # this API will post/create/add the item to the products dictionary
+# def create_item(item_id : int, item: Item):
+#     if item_id in products:
+#         return {"Error" : "Item with the provided ID already exists in products."}
+#     products[item_id] = {"name" : item.name, "price" : item.price, "available" : item.available}
+#     return products[item_id]
+
+@app.post("/create-item/{item_id}") # this API will post/create/add the item to the products dictionary
+def create_item(item_id : int, item: Item):
+    if item_id in products:
+        return {"Error" : "Item with the provided ID already exists in products."}
+    products[item_id] = item
+    return products[item_id]
